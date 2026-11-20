@@ -1,9 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Enable cross-compilation against the aarch64 sysroot toolchain.
-# Pass -DCROSS_COMPILE=ON at configure time to build for the target;
-# leave OFF (default) to build natively on the host.
-option(CROSS_COMPILE "Enable cross-compilation with the aarch64-buildroot sysroot toolchain" OFF)
+# Enable cross-compilation against the IEDOS Buildroot SDK (Orange Pi PC 2
+# or Orange Pi One). Pass -DCROSS_COMPILE=ON at configure time to build for
+# the target; leave OFF (default) to build natively on the host.
+# Board selection: -DIEDOS_BOARD=orangepi-pc2 (aarch64, default)
+#                  -DIEDOS_BOARD=orangepi-one  (arm 32-bit).
+option(CROSS_COMPILE "Enable cross-compilation with the IEDOS Buildroot SDK toolchain" OFF)
 
 if(CROSS_COMPILE)
     include("${CMAKE_CURRENT_LIST_DIR}/cmake/toolchain.cmake")

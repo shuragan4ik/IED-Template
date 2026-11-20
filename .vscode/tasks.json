@@ -1,7 +1,10 @@
 {
     // Задачи сборки и развёртывания проекта IED-Template.
     // Локальная отладка:  "Build (host x86_64)"  -> build/ied_exe
-    // Отладка на плате:   "Build (target aarch64)" + "Deploy & gdbserver (target)"
+    // Плата PC 2 (aarch64): "Build (target orangepi-pc2)" + "Deploy & gdbserver (orangepi-pc2)" -> 192.168.0.101
+    // Плата One  (arm32):   "Build (target orangepi-one)" + "Deploy & gdbserver (orangepi-one)" -> 192.168.0.100
+    // SDK: распакуйте нужный *_sdk-buildroot.tar.gz из репозитория iedos,
+    // выполните relocate-sdk.sh и экспортируйте IEDOS_SDK (см. README).
     "version": "2.0.0",
     "tasks": [
         {
@@ -18,31 +21,46 @@
             "detail": "CMake configure + build для локальной отладки (x86_64, Debug)"
         },
         {
-            // Кросс-сборка под целевую ARM-плату (aarch64, toolchain из cmake/toolchain.cmake).
-            // Результат: build-aarch64/ied_exe — исполняемый файл для платы.
-            "label": "Build (target aarch64)",
+            // Кросс-сборка под Orange Pi PC 2 (aarch64, H5).
+            "label": "Build (target orangepi-pc2)",
             "type": "shell",
-            "command": "cmake -B build-aarch64 -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON && cmake --build build-aarch64 -j",
+            "command": "cmake -B build-aarch64 -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-pc2 && cmake --build build-aarch64 -j",
             "group": "build",
             "problemMatcher": ["$gcc"],
-            "detail": "Кросс-компиляция под aarch64 (sysroot /opt/arm_sysroot), Debug"
+            "detail": "Кросс-компиляция под aarch64 (IEDOS SDK, $IEDOS_SDK), Debug"
         },
         {
-            // Загрузка бинарника на плату и запуск gdbserver.
-            // ВАЖНО: замените 192.168.1.50 на IP-адрес вашей платы (в двух местах:
-            // scp и ssh). Плата должна быть в одной сети с хостом, доступ по ssh от root.
-            "label": "Deploy & gdbserver (target)",
+            // Кросс-сборка под Orange Pi One (arm 32-bit, H3).
+            "label": "Build (target orangepi-one)",
             "type": "shell",
-            "command": "scp build-aarch64/ied_exe root@192.168.1.50:/root/ && ssh root@192.168.1.50 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.1.50:1234'",
+            "command": "cmake -B build-arm -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-one && cmake --build build-arm -j",
+            "group": "build",
+            "problemMatcher": ["$gcc"],
+            "detail": "Кросс-компиляция под arm-linux-gnueabihf (IEDOS SDK, $IEDOS_SDK), Debug"
+        },
+        {
+            // Загрузка бинарника на Orange Pi PC 2 и запуск gdbserver.
+            "label": "Deploy & gdbserver (orangepi-pc2)",
+            "type": "shell",
+            "command": "scp build-aarch64/ied_exe root@192.168.0.101:/root/ && ssh root@192.168.0.101 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.0.101:1234'",
             "problemMatcher": [],
-            "detail": "scp бинарника на плату + запуск gdbserver :1234 (preLaunchTask для удалённой отладки)"
+            "detail": "scp бинарника на плату PC 2 + запуск gdbserver :1234"
+        },
+        {
+            // Загрузка бинарника на Orange Pi One и запуск gdbserver.
+            "label": "Deploy & gdbserver (orangepi-one)",
+            "type": "shell",
+            "command": "scp build-arm/ied_exe root@192.168.0.100:/root/ && ssh root@192.168.0.100 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.0.100:1234'",
+            "problemMatcher": [],
+            "detail": "scp бинарника на плату One + запуск gdbserver :1234"
         },
         {
             // Проверка aarch64-бинарника БЕЗ реального железа: QEMU user-mode под кросс-gdb.
             // Запускается в терминале — управляйте классическими командами gdb (b, c, n, s, p).
+            // Требуется qemu-user на хосте (apt install qemu-user).
             "label": "QEMU + cross-gdb (terminal)",
             "type": "shell",
-            "command": "/opt/arm_sysroot/bin/aarch64-buildroot-linux-gnu-gdb -ex \"target remote | qemu-aarch64 -L /opt/arm_sysroot/aarch64-buildroot-linux-gnu/sysroot -g stdio ./build-aarch64/ied_exe eth0\"",
+            "command": "${env:IEDOS_SDK}/bin/aarch64-buildroot-linux-gnu-gdb -ex \"target remote | qemu-aarch64 -L ${env:IEDOS_SDK}/aarch64-buildroot-linux-gnu/sysroot -g stdio ./build-aarch64/ied_exe eth0\"",
             "problemMatcher": [],
             "detail": "Эмуляция build-aarch64/ied_exe в QEMU под aarch64-gdb (нужна кросс-сборка)"
         }

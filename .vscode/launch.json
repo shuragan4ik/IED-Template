@@ -1,7 +1,10 @@
 {
     // Конфигурации отладки IED-Template.
-    // 1) "Debug (host x86_64)"            — локальная отладка на компьютере.
-    // 2) "Debug (target aarch64, gdbserver)" — отладка на целевой ARM-плате.
+    // 1) "Debug (host x86_64)"                    — локальная отладка на компьютере.
+    // 2) "Debug (orangepi-pc2, gdbserver)"        — отладка на плате PC 2 (aarch64).
+    // 3) "Debug (orangepi-one, gdbserver)"        — отладка на плате One (arm32).
+    // Переменная окружения IEDOS_SDK должна указывать на SDK той платы,
+    // которую вы отлаживаете (aarch64 SDK для PC 2, arm SDK для One).
     "version": "0.2.0",
     "configurations": [
         {
@@ -29,22 +32,38 @@
             ]
         },
         {
-            // Отладка на целевой ARM-плате через gdbserver.
-            // Подготовка (сделать ОДИН РАЗ под свою плату):
-            //   1) в .vscode/gdb-remote.gdb — IP платы и порт (по умолчанию :1234);
-            //   2) в задаче "Deploy & gdbserver (target)" в tasks.json — IP платы.
-            // При запуске: задача скопирует build-aarch64/ied_exe на плату,
-            // поднимет gdbserver, а кросс-gdb подключится и остановится на entry.
-            "name": "Debug (target aarch64, gdbserver)",
+            // Отладка на Orange Pi PC 2 (aarch64) через gdbserver на плате.
+            // IP задаётся в .vscode/gdb-remote-pc2.gdb, задача деплоя — в tasks.json.
+            "name": "Debug (orangepi-pc2, gdbserver)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build-aarch64/ied_exe", // только для символов
             "stopAtEntry": true,
             "cwd": "${workspaceFolder}",
             "MIMode": "gdb",
-            "miDebuggerPath": "/opt/arm_sysroot/bin/aarch64-buildroot-linux-gnu-gdb",
-            "initFile": "${workspaceFolder}/.vscode/gdb-remote.gdb",
-            "preLaunchTask": "Deploy & gdbserver (target)",
+            "miDebuggerPath": "${env:IEDOS_SDK}/bin/aarch64-buildroot-linux-gnu-gdb",
+            "initFile": "${workspaceFolder}/.vscode/gdb-remote-pc2.gdb",
+            "preLaunchTask": "Deploy & gdbserver (orangepi-pc2)",
+            "setupCommands": [
+                {
+                    "description": "Включить pretty-printing в gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            // Отладка на Orange Pi One (arm 32-bit) через gdbserver на плате.
+            "name": "Debug (orangepi-one, gdbserver)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build-arm/ied_exe", // только для символов
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "MIMode": "gdb",
+            "miDebuggerPath": "${env:IEDOS_SDK}/bin/arm-buildroot-linux-gnueabihf-gdb",
+            "initFile": "${workspaceFolder}/.vscode/gdb-remote-one.gdb",
+            "preLaunchTask": "Deploy & gdbserver (orangepi-one)",
             "setupCommands": [
                 {
                     "description": "Включить pretty-printing в gdb",
