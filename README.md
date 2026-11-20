@@ -30,12 +30,12 @@
 
 ```bash
 mkdir -p ~/iedos-sdk && cd ~/iedos-sdk
-tar xf <путь>/aarch64-linux-gnu_sdk-buildroot.tar.gz
-./aarch64-linux-gnu_sdk-buildroot/relocate-sdk.sh
-export IEDOS_SDK=$HOME/iedos-sdk/aarch64-linux-gnu_sdk-buildroot   # в ~/.zshrc/.bashrc
+tar xf <путь>/aarch64-buildroot-linux-gnu_sdk-buildroot.tar.gz
+./aarch64-buildroot-linux-gnu_sdk-buildroot/relocate-sdk.sh
+export IEDOS_SDK=$HOME/iedos-sdk/aarch64-buildroot-linux-gnu_sdk-buildroot   # в ~/.zshrc/.bashrc
 ```
 
-> Для Orange Pi One — аналогично `arm-linux-gnueabihf_sdk-buildroot`.
+> Для Orange Pi One — аналогично `arm-buildroot-linux-gnueabihf_sdk-buildroot`.
 > `IEDOS_SDK` должен указывать на SDK той платы, под которую собираете/отлаживаете.
 > В sysroot SDK уже есть libiec61850, libgpiod, boost, gtest и другие пакеты прошивки.
 
