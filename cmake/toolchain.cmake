@@ -50,6 +50,13 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
+# pkg-config должен искать .pc-файлы в sysroot платы, а не хостные
+# (как в toolchainfile.cmake Buildroot): PKG_CONFIG_LIBDIR задаёт список
+# путей поиска целиком, PKG_CONFIG_SYSROOT_DIR переписывает пути в флагах.
+set(ENV{PKG_CONFIG_SYSROOT_DIR} "${CMAKE_SYSROOT}")
+set(ENV{PKG_CONFIG_LIBDIR}
+    "${CMAKE_SYSROOT}/usr/lib/pkgconfig:${CMAKE_SYSROOT}/usr/share/pkgconfig")
+
 if(NOT EXISTS "${CMAKE_C_COMPILER}")
     message(FATAL_ERROR
         "Компилятор ${CMAKE_C_COMPILER} не найден.\n"
