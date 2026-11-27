@@ -1,8 +1,8 @@
 {
     // Задачи сборки и развёртывания проекта IED-Template.
     // Локальная отладка:  "Build (host x86_64)"  -> build/ied_exe
-    // Плата PC 2 (aarch64): "Build (target orangepi-pc2)" + "Deploy & gdbserver (orangepi-pc2)" -> 192.168.0.101
-    // Плата One  (arm32):   "Build (target orangepi-one)" + "Deploy & gdbserver (orangepi-one)" -> 192.168.0.100
+    // Плата PC 2 (aarch64): "Build (target orangepi-pc2)" + "Deploy & gdbserver (orangepi-pc2)" -> 192.168.100.52
+    // Плата One  (arm32):   "Build (target orangepi-one)" + "Deploy & gdbserver (orangepi-one)" -> 192.168.100.51
     // SDK: распакуйте нужный *_sdk-buildroot.tar.gz из репозитория iedos,
     // выполните relocate-sdk.sh и экспортируйте IEDOS_SDK (см. README).
     "version": "2.0.0",
@@ -42,7 +42,7 @@
             // Загрузка бинарника на Orange Pi PC 2 и запуск gdbserver.
             "label": "Deploy & gdbserver (orangepi-pc2)",
             "type": "shell",
-            "command": "scp build-aarch64/ied_exe root@192.168.0.101:/root/ && ssh root@192.168.0.101 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.0.101:1234'",
+            "command": "scp build-aarch64/ied_exe root@192.168.100.52:/root/ && ssh root@192.168.100.52 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.100.52:1234'",
             "problemMatcher": [],
             "detail": "scp бинарника на плату PC 2 + запуск gdbserver :1234"
         },
@@ -50,7 +50,7 @@
             // Загрузка бинарника на Orange Pi One и запуск gdbserver.
             "label": "Deploy & gdbserver (orangepi-one)",
             "type": "shell",
-            "command": "scp build-arm/ied_exe root@192.168.0.100:/root/ && ssh root@192.168.0.100 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.0.100:1234'",
+            "command": "scp build-arm/ied_exe root@192.168.100.51:/root/ && ssh root@192.168.100.51 \"pkill -f 'gdbserver 0.0.0.0:1234' ; nohup gdbserver 0.0.0.0:1234 /root/ied_exe eth0 >/tmp/gdbserver.log 2>&1 & sleep 1; echo 'gdbserver started on 192.168.100.51:1234'",
             "problemMatcher": [],
             "detail": "scp бинарника на плату One + запуск gdbserver :1234"
         },

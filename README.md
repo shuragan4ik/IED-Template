@@ -6,8 +6,8 @@
 
 | Плата | Архитектура | Кросс-конфигурация | IP (статический) |
 |---|---|---|---|
-| Orange Pi PC 2 (H5) | aarch64 | `-DIEDOS_BOARD=orangepi-pc2` | 192.168.0.101 |
-| Orange Pi One (H3) | arm 32-bit | `-DIEDOS_BOARD=orangepi-one` | 192.168.0.100 |
+| Orange Pi PC 2 (H5) | aarch64 | `-DIEDOS_BOARD=orangepi-pc2` | 192.168.100.52 |
+| Orange Pi One (H3) | arm 32-bit | `-DIEDOS_BOARD=orangepi-one` | 192.168.100.51 |
 
 ## Структура
 
