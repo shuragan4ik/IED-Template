@@ -5,6 +5,8 @@
     // Плата One  (arm32):   "Build (target orangepi-one)" + "Deploy & gdbserver (orangepi-one)" -> 192.168.100.51
     // SDK: распакуйте нужный *_sdk-buildroot.tar.gz из репозитория iedos,
     // выполните relocate-sdk.sh и экспортируйте IEDOS_SDK (см. README).
+    // Флаги configure находятся в CMakePresets.json: задачи вызывают
+    // "cmake --preset <имя>", там же их можно менять.
     "version": "2.0.0",
     "tasks": [
         {
@@ -12,7 +14,7 @@
             // Это задача по умолчанию: F7 / Ctrl+Shift+B.
             "label": "Build (host x86_64)",
             "type": "shell",
-            "command": "cmake -B build -DCMAKE_BUILD_TYPE=Debug && cmake --build build -j",
+            "command": "cmake --preset host && cmake --build --preset host -j",
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -24,7 +26,7 @@
             // Кросс-сборка под Orange Pi PC 2 (aarch64, H5).
             "label": "Build (target orangepi-pc2)",
             "type": "shell",
-            "command": "cmake -B build-aarch64 -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-pc2 && cmake --build build-aarch64 -j",
+            "command": "cmake --preset orangepi-pc2 && cmake --build --preset orangepi-pc2 -j",
             "group": "build",
             "problemMatcher": ["$gcc"],
             "detail": "Кросс-компиляция под aarch64 (IEDOS SDK, $IEDOS_SDK), Debug"
@@ -33,7 +35,7 @@
             // Кросс-сборка под Orange Pi One (arm 32-bit, H3).
             "label": "Build (target orangepi-one)",
             "type": "shell",
-            "command": "cmake -B build-arm -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-one && cmake --build build-arm -j",
+            "command": "cmake --preset orangepi-one && cmake --build --preset orangepi-one -j",
             "group": "build",
             "problemMatcher": ["$gcc"],
             "detail": "Кросс-компиляция под arm-linux-gnueabihf (IEDOS SDK, $IEDOS_SDK), Debug"

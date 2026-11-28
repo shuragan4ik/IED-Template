@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 20,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "host",
+      "displayName": "Host (нативная, x86_64)",
+      "description": "Нативная сборка для локальной отладки: build/ied_exe. CROSS_COMPILE=OFF.",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CROSS_COMPILE": "OFF"
+      }
+    },
+    {
+      "name": "orangepi-pc2",
+      "displayName": "Orange Pi PC 2 (aarch64)",
+      "description": "Кросс-сборка под H5 / aarch64, плата 192.168.100.52. $IEDOS_SDK (или -DTOOLCHAIN_PATH) должен указывать на aarch64-buildroot-linux-gnu_sdk-buildroot.",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-aarch64",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CROSS_COMPILE": "ON",
+        "IEDOS_BOARD": "orangepi-pc2"
+      }
+    },
+    {
+      "name": "orangepi-one",
+      "displayName": "Orange Pi One (arm 32-bit)",
+      "description": "Кросс-сборка под H3 / arm-linux-gnueabihf, плата 192.168.100.51. $IEDOS_SDK (или -DTOOLCHAIN_PATH) должен указывать на arm-buildroot-linux-gnueabihf_sdk-buildroot.",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build-arm",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CROSS_COMPILE": "ON",
+        "IEDOS_BOARD": "orangepi-one"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "host",
+      "displayName": "Host (нативная, x86_64)",
+      "configurePreset": "host"
+    },
+    {
+      "name": "orangepi-pc2",
+      "displayName": "Orange Pi PC 2 (aarch64)",
+      "configurePreset": "orangepi-pc2"
+    },
+    {
+      "name": "orangepi-one",
+      "displayName": "Orange Pi One (arm 32-bit)",
+      "configurePreset": "orangepi-one"
+    }
+  ]
+}

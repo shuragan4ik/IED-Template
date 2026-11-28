@@ -14,6 +14,7 @@
 ```
 ├── src/main.c                  # точка входа (заполняется в рамках заданий)
 ├── include/                    # заголовочные файлы проекта
+├── CMakePresets.json           # 3 пресета сборки: host, orangepi-pc2, orangepi-one
 ├── cmake/toolchain.cmake       # тулчейн кросс-компиляции (Buildroot SDK, обе платы)
 └── third_party/libiec61850/    # сабмодуль: стек IEC 61850 + примеры (goose_publisher, goose_observer, ...)
 ```
@@ -21,7 +22,7 @@
 ## Требования
 
 - Linux (Ubuntu 22.04+) или WSL2;
-- git, cmake ≥ 3.10, gcc, gdb;
+- git, cmake ≥ 3.20 (нужен для `CMakePresets.json`), gcc, gdb;
 - **Buildroot SDK (IEDOS)** — перемещаемый архив из сборки образов `iedos`
   (`output/iedos_*/images/*_sdk-buildroot.tar.gz`);
 - для реальной отправки GOOSE: права root (raw-сокеты).
@@ -47,26 +48,31 @@ export IEDOS_SDK=$HOME/iedos-sdk/aarch64-buildroot-linux-gnu_sdk-buildroot   # �
 git clone --recurse-submodules <url> && cd IED-Template
 ```
 
-Нативная сборка (x86_64, для локальной отладки):
+Варианты сборки описаны в `CMakePresets.json`: три configure-пресета (по одному на
+хост и на каждую плату) и три парных build-пресета с теми же именами.
+
+| Пресет | Каталог | Назначение |
+|---|---|---|
+| `host` | `build/` | нативная сборка (x86_64) для локальной отладки |
+| `orangepi-pc2` | `build-aarch64/` | кросс-сборка под Orange Pi PC 2 (H5, aarch64) |
+| `orangepi-one` | `build-arm/` | кросс-сборка под Orange Pi One (H3, arm 32-bit) |
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build -j
-./build/ied_exe eth0        # имя своего интерфейса; для GOOSE — sudo
+cmake --list-presets                                        # список пресетов
+
+cmake --preset host && cmake --build --preset host -j      # build/ied_exe
+./build/ied_exe eth0                                       # имя своего интерфейса; для GOOSE — sudo
+
+cmake --preset orangepi-pc2 && cmake --build --preset orangepi-pc2 -j   # $IEDOS_SDK: aarch64 SDK
+cmake --preset orangepi-one && cmake --build --preset orangepi-one -j   # $IEDOS_SDK: arm SDK
 ```
 
-Кросс-сборка под Orange Pi PC 2 (aarch64):
+Пресеты задают `CMAKE_BUILD_TYPE=Debug`, `CROSS_COMPILE`, `IEDOS_BOARD` и генератор
+Unix Makefiles. Тот же результат без пресетов:
 
 ```bash
 cmake -B build-aarch64 -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-pc2
 cmake --build build-aarch64 -j
-```
-
-Кросс-сборка под Orange Pi One (arm 32-bit):
-
-```bash
-cmake -B build-arm -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-one
-cmake --build build-arm -j
 ```
 
 ## Отладка в VS Code
