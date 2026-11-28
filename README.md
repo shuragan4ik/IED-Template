@@ -14,6 +14,7 @@
 ```
 ├── src/main.c                  # точка входа (заполняется в рамках заданий)
 ├── include/                    # заголовочные файлы проекта
+├── examples/                   # примеры периферии (blink_led: GPIO через libgpiod из SDK)
 ├── CMakePresets.json           # 3 пресета сборки: host, orangepi-pc2, orangepi-one
 ├── cmake/toolchain.cmake       # тулчейн кросс-компиляции (Buildroot SDK, обе платы)
 └── third_party/libiec61850/    # сабмодуль: стек IEC 61850 + примеры (goose_publisher, goose_observer, ...)
@@ -74,6 +75,20 @@ Unix Makefiles. Тот же результат без пресетов:
 cmake -B build-aarch64 -DCMAKE_BUILD_TYPE=Debug -DCROSS_COMPILE=ON -DIEDOS_BOARD=orangepi-pc2
 cmake --build build-aarch64 -j
 ```
+
+## Примеры (examples/)
+
+`examples/blink_led.c` — мигание светодиодом на `gpiochip1`, линия 11, через
+libgpiod v2 из sysroot SDK (внешних зависимостей нет):
+
+```bash
+cmake --preset orangepi-pc2 && cmake --build --preset orangepi-pc2 -j
+scp build-aarch64/examples/blink_led root@192.168.100.52:/root/
+ssh root@192.168.100.52 ./blink_led          # Ctrl+C — корректный выход
+```
+
+Если libgpiod не найдена (например, при сборке на хосте без libgpiod-dev),
+пример просто пропускается с предупреждением; отключить — `-DBUILD_EXAMPLES=OFF`.
 
 ## Отладка в VS Code
 
